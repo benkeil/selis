@@ -93,8 +93,8 @@ impl Table {
     /// use selis::Table;
     ///
     /// let table = Table::build(|t| {
-    ///     t.header(|h| { h.row(["Name", "Stars"]); });
-    ///     t.body(|b| { b.row(["ratatui", "12.3k"]); });
+    ///     t.header(|h| { h.row_cells(["Name", "Stars"]); });
+    ///     t.body(|b| { b.row_cells(["ratatui", "12.3k"]); });
     /// });
     /// assert_eq!(table.column_count(), Some(2));
     /// ```

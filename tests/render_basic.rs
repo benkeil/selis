@@ -9,11 +9,11 @@ fn renders_a_simple_bordered_table_exactly() {
     let table = Table::build(|t| {
         t.border(BorderPreset::utf8_square());
         t.header(|h| {
-            h.row(["Name", "Stars", "Language"]);
+            h.row_cells(["Name", "Stars", "Language"]);
         });
         t.body(|b| {
-            b.row(["ratatui", "12.3k", "Rust"]);
-            b.row(["mordant", "1.2k", "Kotlin"]);
+            b.row_cells(["ratatui", "12.3k", "Rust"]);
+            b.row_cells(["mordant", "1.2k", "Kotlin"]);
         });
     });
 
@@ -34,14 +34,14 @@ fn renders_colspan_and_rowspan_correctly() {
     let table = Table::build(|t| {
         t.border(BorderPreset::utf8_square());
         t.body(|b| {
-            b.row_with(|r| {
+            b.row(|r| {
                 r.cell("Kategorie", |c| {
                     c.rowspan(3);
                 });
                 r.cells(["Essen", "9343"]);
             });
-            b.row(["Wohnen", "24298"]);
-            b.row(["Transport", "12295"]);
+            b.row_cells(["Wohnen", "24298"]);
+            b.row_cells(["Transport", "12295"]);
         });
     });
 
@@ -62,10 +62,10 @@ fn no_borders_uses_single_space_separators_and_no_outer_edges() {
     let table = Table::build(|t| {
         t.table_borders(Borders::NONE);
         t.header(|h| {
-            h.row(["Name", "Stars"]);
+            h.row_cells(["Name", "Stars"]);
         });
         t.body(|b| {
-            b.row(["ratatui", "12.3k"]);
+            b.row_cells(["ratatui", "12.3k"]);
         });
     });
 

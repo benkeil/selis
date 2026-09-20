@@ -27,10 +27,10 @@ mod tests {
         let table = Table::build(|t| {
             t.theme(classic());
             t.header(|h| {
-                h.row(["Name", "Stars"]);
+                h.row_cells(["Name", "Stars"]);
             });
             t.body(|b| {
-                b.row(["ratatui", "12.3k"]);
+                b.row_cells(["ratatui", "12.3k"]);
             });
         });
 

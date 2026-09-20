@@ -18,7 +18,7 @@ pub struct SectionBuilder<'a> {
     /// Set by [`Self::row_styles`]: alternating styles applied to each row
     /// added afterwards (by position within this section), matching the
     /// Mordant DSL's `rowStyles(...)`. An explicit `.style(...)` set on a
-    /// row via [`Self::row_with`] takes precedence over its zebra style.
+    /// row via [`Self::row`] takes precedence over its zebra style.
     zebra_styles: Vec<Style>,
 }
 
@@ -57,7 +57,7 @@ impl<'a> SectionBuilder<'a> {
     }
 
     /// Appends a row of plain-text cells.
-    pub fn row<I, C>(&mut self, cells: I) -> &mut Self
+    pub fn row_cells<I, C>(&mut self, cells: I) -> &mut Self
     where
         I: IntoIterator<Item = C>,
         C: Into<Cell>,
@@ -69,7 +69,7 @@ impl<'a> SectionBuilder<'a> {
 
     /// Appends a row built with per-cell/per-row customization (colspan,
     /// rowspan, style, borders).
-    pub fn row_with(&mut self, f: impl FnOnce(&mut RowBuilder)) -> &mut Self {
+    pub fn row(&mut self, f: impl FnOnce(&mut RowBuilder)) -> &mut Self {
         let mut row = Row::new();
         f(&mut RowBuilder { row: &mut row });
         self.push_row(row);

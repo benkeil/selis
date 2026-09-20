@@ -8,7 +8,7 @@ use crate::model::row::Row;
 use crate::style::Style;
 
 /// Closure-DSL builder for a single [`Row`], passed to
-/// [`crate::builder::section_builder::SectionBuilder::row_with`].
+/// [`crate::builder::section_builder::SectionBuilder::row`].
 pub struct RowBuilder<'a> {
     pub(crate) row: &'a mut Row,
 }

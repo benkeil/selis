@@ -7,10 +7,10 @@
 //! let table = Table::build(|t| {
 //!     t.border(BorderPreset::utf8_square());
 //!     t.header(|h| {
-//!         h.row(["Name", "Language"]);
+//!         h.row_cells(["Name", "Language"]);
 //!     });
 //!     t.body(|b| {
-//!         b.row(["selis", "Rust"]);
+//!         b.row_cells(["selis", "Rust"]);
 //!     });
 //! });
 //! ```

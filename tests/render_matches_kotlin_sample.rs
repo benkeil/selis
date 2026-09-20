@@ -21,7 +21,7 @@ fn builds_the_kotlin_sample_table_shape() {
         t.header(|h| {
             h.style(Style::new().fg(Color::BrightRed).bold());
 
-            h.row_with(|r| {
+            h.row(|r| {
                 r.cell_borders(Borders::NONE);
                 r.cells(["", "", "", ""]);
                 r.cell("Percent Change", |c| {
@@ -30,7 +30,7 @@ fn builds_the_kotlin_sample_table_shape() {
                 });
             });
 
-            h.row_with(|r| {
+            h.row(|r| {
                 r.cell_borders(Borders::BOTTOM);
                 r.cells(["", "2020", "2021", "2022", "2020-21", "2021-22"]);
             });
@@ -55,20 +55,20 @@ fn builds_the_kotlin_sample_table_shape() {
 
             b.row_styles([Style::new(), Style::new().dim()]);
 
-            b.row(["Average income before taxes", "$84,352", "$87,432", "$94,003", "3.7", "7.5"]);
-            b.row(["Average annual expenditures", "$61,332", "$66,928", "$72,967", "9.1", "9.0"]);
-            b.row(["  Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
-            b.row(["  Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
-            b.row(["  Apparel and services", "1,434", "1,754", "1,945", "22.3", "10.9"]);
-            b.row(["  Transportation", "9,826", "10,961", "12,295", "11.6", "12.2"]);
-            b.row(["  Healthcare", "5,177", "5,452", "5,850", "5.3", "7.3"]);
-            b.row(["  Entertainment", "2,909", "3,568", "3,458", "22.7", "-3.1"]);
-            b.row(["  Education", "1,271", "1,226", "1,335", "-3.5", "8.9"]);
+            b.row_cells(["Average income before taxes", "$84,352", "$87,432", "$94,003", "3.7", "7.5"]);
+            b.row_cells(["Average annual expenditures", "$61,332", "$66,928", "$72,967", "9.1", "9.0"]);
+            b.row_cells(["  Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
+            b.row_cells(["  Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
+            b.row_cells(["  Apparel and services", "1,434", "1,754", "1,945", "22.3", "10.9"]);
+            b.row_cells(["  Transportation", "9,826", "10,961", "12,295", "11.6", "12.2"]);
+            b.row_cells(["  Healthcare", "5,177", "5,452", "5,850", "5.3", "7.3"]);
+            b.row_cells(["  Entertainment", "2,909", "3,568", "3,458", "22.7", "-3.1"]);
+            b.row_cells(["  Education", "1,271", "1,226", "1,335", "-3.5", "8.9"]);
         });
 
         t.footer(|f| {
             f.style(Style::new().italic());
-            f.row_with(|r| {
+            f.row(|r| {
                 r.cells(["Remaining income", "$23,020", "$20,504", "$21,036"]);
             });
         });
@@ -112,10 +112,10 @@ fn builds_the_kotlin_sample_table_shape() {
 fn a_row_longer_than_the_established_column_count_panics() {
     Table::build(|t| {
         t.header(|h| {
-            h.row(["a", "b", "c", "d", "e", "f"]);
+            h.row_cells(["a", "b", "c", "d", "e", "f"]);
         });
         t.footer(|f| {
-            f.row(["a", "b", "c", "d", "e", "f", "g"]);
+            f.row_cells(["a", "b", "c", "d", "e", "f", "g"]);
         });
     });
 }
@@ -125,9 +125,9 @@ fn zebra_row_styles_alternate_and_explicit_style_wins() {
     let table = Table::build(|t| {
         t.body(|b| {
             b.row_styles([Style::new().fg(Color::Green), Style::new().dim()]);
-            b.row(["a"]);
-            b.row(["b"]);
-            b.row_with(|r| {
+            b.row_cells(["a"]);
+            b.row_cells(["b"]);
+            b.row(|r| {
                 r.cells(["c"]);
                 r.style(Style::new().fg(Color::Red));
             });

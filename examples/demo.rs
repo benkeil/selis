@@ -13,7 +13,7 @@ fn build_classic_sample() -> Table {
         t.header(|h| {
             h.style(Style::new().fg(Color::BrightRed).bold());
 
-            h.row_with(|r| {
+            h.row(|r| {
                 r.cell_borders(Borders::NONE);
                 r.cells(["", "", "", ""]);
                 r.cell("Percent Change", |c| {
@@ -22,7 +22,7 @@ fn build_classic_sample() -> Table {
                 });
             });
 
-            h.row_with(|r| {
+            h.row(|r| {
                 r.cell_borders(Borders::BOTTOM);
                 r.cells(["", "2020", "2021", "2022", "2020-21", "2021-22"]);
             });
@@ -47,7 +47,7 @@ fn build_classic_sample() -> Table {
 
             b.row_styles([Style::new(), Style::new().dim()]);
 
-            b.row([
+            b.row_cells([
                 "Average income before taxes",
                 "$84,352",
                 "$87,432",
@@ -55,7 +55,7 @@ fn build_classic_sample() -> Table {
                 "3.7",
                 "7.5",
             ]);
-            b.row([
+            b.row_cells([
                 "Average annual expenditures",
                 "$61,332",
                 "$66,928",
@@ -63,9 +63,9 @@ fn build_classic_sample() -> Table {
                 "9.1",
                 "9.0",
             ]);
-            b.row(["  Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
-            b.row(["  Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
-            b.row([
+            b.row_cells(["  Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
+            b.row_cells(["  Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
+            b.row_cells([
                 "  Apparel and services",
                 "1,434",
                 "1,754",
@@ -73,7 +73,7 @@ fn build_classic_sample() -> Table {
                 "22.3",
                 "10.9",
             ]);
-            b.row([
+            b.row_cells([
                 "  Transportation",
                 "9,826",
                 "10,961",
@@ -81,14 +81,14 @@ fn build_classic_sample() -> Table {
                 "11.6",
                 "12.2",
             ]);
-            b.row(["  Healthcare", "5,177", "5,452", "5,850", "5.3", "7.3"]);
-            b.row(["  Entertainment", "2,909", "3,568", "3,458", "22.7", "-3.1"]);
-            b.row(["  Education", "1,271", "1,226", "1,335", "-3.5", "8.9"]);
+            b.row_cells(["  Healthcare", "5,177", "5,452", "5,850", "5.3", "7.3"]);
+            b.row_cells(["  Entertainment", "2,909", "3,568", "3,458", "22.7", "-3.1"]);
+            b.row_cells(["  Education", "1,271", "1,226", "1,335", "-3.5", "8.9"]);
         });
 
         t.footer(|f| {
             f.style(Style::new().italic());
-            f.row_with(|r| {
+            f.row(|r| {
                 r.cells(["Remaining income", "$23,020", "$20,504", "$21,036"]);
             });
         });
@@ -108,10 +108,7 @@ fn build_github_sample() -> Table {
         t.align(Align::Right);
 
         t.header(|h| {
-            h.column(0, |c| {
-                c.align(Align::Left);
-            });
-            h.row(["Header", "2020", "2021", "2022", "2020-21", "2021-22"]);
+            h.row_cells(["Header", "2020", "2021", "2022", "2020-21", "2021-22"]);
         });
 
         t.body(|b| {
@@ -119,7 +116,7 @@ fn build_github_sample() -> Table {
                 c.align(Align::Left);
             });
 
-            b.row([
+            b.row_cells([
                 "Average income before taxes",
                 "$84,352",
                 "$87,432",
@@ -127,7 +124,7 @@ fn build_github_sample() -> Table {
                 "3.7",
                 "7.5",
             ]);
-            b.row([
+            b.row_cells([
                 "Average annual expenditures",
                 "$61,332",
                 "$66,928",
@@ -135,12 +132,12 @@ fn build_github_sample() -> Table {
                 "9.1",
                 "9.0",
             ]);
-            b.row(["Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
-            b.row(["Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
+            b.row_cells(["Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
+            b.row_cells(["Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
         });
 
         t.footer(|f| {
-            f.row(["Remaining income", "$23,020", "$20,504", "$21,036"]);
+            f.row_cells(["Remaining income", "$23,020", "$20,504", "$21,036"]);
         });
     })
 }

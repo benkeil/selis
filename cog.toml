@@ -6,7 +6,7 @@ skip_ci = "[skip ci]"
 # Cargo.lock in sync) has to be an explicit hook. Both get committed as part
 # of the version commit, same as the changelog.
 pre_bump_hooks = [
-    """sed -i 's/^version = ".*"/version = "{{version}}"/' Cargo.toml""",
+    "cargo set-version {{version}}",
     "cargo check",
 ]
 

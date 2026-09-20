@@ -18,17 +18,18 @@ pub mod layout;
 pub mod model;
 pub mod render;
 pub mod style;
+mod text;
 pub mod theme;
 
 pub use border::{BorderChars, BorderPreset, Borders};
-pub use model::{Cell, Column, Row, SectionKind, Table};
+pub use model::{Cell, Column, MaxWidth, Row, SectionKind, Table};
 pub use style::{Align, Case, Color, Style};
 pub use theme::Theme;
 
 /// Convenient glob-import of the most commonly used types.
 pub mod prelude {
     pub use crate::border::{BorderChars, BorderPreset, Borders};
-    pub use crate::model::{Cell, Column, Row, SectionKind, Table};
+    pub use crate::model::{Cell, Column, MaxWidth, Row, SectionKind, Table};
     pub use crate::style::{Align, Case, Color, Style};
     pub use crate::theme::{classic::classic, github::github, Theme};
 }

@@ -4,16 +4,20 @@
 //! its columns wider if its own content doesn't already fit in their
 //! combined natural width.
 
+use std::collections::HashMap;
+
 use unicode_width::UnicodeWidthStr;
 
 use crate::layout::grid::{Grid, GridSlot};
 use crate::model::section::Section;
 
 /// One (section, resolved grid) pair to consider together when computing
-/// shared column widths.
+/// shared column widths. `row_offset` is this section's first row's global
+/// row index (used to look up already-resolved content overrides).
 pub struct SectionGrid<'a> {
     pub section: &'a Section,
     pub grid: &'a Grid,
+    pub row_offset: usize,
 }
 
 /// Computes the content width of each of `column_count` columns, given all
@@ -28,10 +32,18 @@ pub struct SectionGrid<'a> {
 /// internal separator is removed for the merge). If the spanning cell needs
 /// more room than that, the extra width is distributed as evenly as
 /// possible across the spanned columns.
+///
+/// `content_overrides` (keyed by global `(row, col)`) supplies the final,
+/// already-resolved content width for a cell if present — this is how a
+/// column's `max_width` (see [`crate::model::MaxWidth`]) takes effect: the
+/// caller truncates a cell's content before computing widths, and passes
+/// the truncated width in here, so the column is naturally sized to fit.
+/// Cells without an override fall back to their raw model content width.
 pub fn compute_column_widths(
     sections: &[SectionGrid<'_>],
     column_count: usize,
     column_separator_width: usize,
+    content_overrides: &HashMap<(usize, usize), usize>,
 ) -> Vec<usize> {
     let mut widths = vec![0usize; column_count];
 
@@ -40,8 +52,11 @@ pub fn compute_column_widths(
         for (row_idx, row) in sg.grid.slots.iter().enumerate() {
             for (col_idx, slot) in row.iter().enumerate() {
                 if let GridSlot::Origin { source_row, source_cell, colspan: 1, .. } = slot {
-                    let content = cell_content(sg.section, *source_row, *source_cell);
-                    widths[col_idx] = widths[col_idx].max(content.width());
+                    let global_row = sg.row_offset + row_idx;
+                    let width = content_overrides.get(&(global_row, col_idx)).copied().unwrap_or_else(
+                        || cell_content(sg.section, *source_row, *source_cell).width(),
+                    );
+                    widths[col_idx] = widths[col_idx].max(width);
                     debug_assert_eq!(row_idx, *source_row);
                 }
             }
@@ -50,14 +65,16 @@ pub fn compute_column_widths(
 
     // Pass 2: spanning cells widen their spanned columns if needed.
     for sg in sections {
-        for row in &sg.grid.slots {
+        for (row_idx, row) in sg.grid.slots.iter().enumerate() {
             for (col_idx, slot) in row.iter().enumerate() {
                 if let GridSlot::Origin { source_row, source_cell, colspan, .. } = slot {
                     if *colspan <= 1 {
                         continue;
                     }
-                    let content = cell_content(sg.section, *source_row, *source_cell);
-                    let needed = content.width();
+                    let global_row = sg.row_offset + row_idx;
+                    let needed = content_overrides.get(&(global_row, col_idx)).copied().unwrap_or_else(
+                        || cell_content(sg.section, *source_row, *source_cell).width(),
+                    );
                     let span_cols = col_idx..(col_idx + colspan).min(column_count);
                     let current: usize =
                         span_cols.clone().map(|c| widths[c]).sum::<usize>()
@@ -118,9 +135,9 @@ mod tests {
             Row::from_cells(["aaaa", "b", "c"]),
         ]);
         let grid = grid::resolve(&section, 3);
-        let sections = [SectionGrid { section: &section, grid: &grid }];
+        let sections = [SectionGrid { section: &section, grid: &grid, row_offset: 0 }];
 
-        let widths = compute_column_widths(&sections, 3, 1);
+        let widths = compute_column_widths(&sections, 3, 1, &HashMap::new());
 
         assert_eq!(widths, vec![4, 2, 3]);
     }
@@ -132,9 +149,9 @@ mod tests {
         row.push(Cell::new("x"));
         let section = section_with_rows(vec![row, Row::from_cells(["a", "b", "c"])]);
         let grid = grid::resolve(&section, 3);
-        let sections = [SectionGrid { section: &section, grid: &grid }];
+        let sections = [SectionGrid { section: &section, grid: &grid, row_offset: 0 }];
 
-        let widths = compute_column_widths(&sections, 3, 1);
+        let widths = compute_column_widths(&sections, 3, 1, &HashMap::new());
 
         assert_eq!(widths, vec![1, 1, 1]);
     }
@@ -146,9 +163,9 @@ mod tests {
         row.push(Cell::new("x"));
         let section = section_with_rows(vec![row, Row::from_cells(["a", "b", "c"])]);
         let grid = grid::resolve(&section, 3);
-        let sections = [SectionGrid { section: &section, grid: &grid }];
+        let sections = [SectionGrid { section: &section, grid: &grid, row_offset: 0 }];
 
-        let widths = compute_column_widths(&sections, 3, 1);
+        let widths = compute_column_widths(&sections, 3, 1, &HashMap::new());
 
         // natural: [1, 1, 1]; span covers cols 0-1: current = 1+1+1(sep) = 3;
         // needed = 14; deficit = 11, split across 2 columns -> 6 and 5 (remainder to later column).
@@ -164,11 +181,11 @@ mod tests {
         let body_grid = grid::resolve(&body, 2);
 
         let sections = [
-            SectionGrid { section: &header, grid: &header_grid },
-            SectionGrid { section: &body, grid: &body_grid },
+            SectionGrid { section: &header, grid: &header_grid, row_offset: 0 },
+            SectionGrid { section: &body, grid: &body_grid, row_offset: 1 },
         ];
 
-        let widths = compute_column_widths(&sections, 2, 1);
+        let widths = compute_column_widths(&sections, 2, 1, &HashMap::new());
         assert_eq!(widths, vec![2, 6]);
     }
 }

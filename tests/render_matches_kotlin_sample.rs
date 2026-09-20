@@ -24,10 +24,7 @@ fn builds_the_kotlin_sample_table_shape() {
             h.row(|r| {
                 r.cell_borders(Borders::NONE);
                 r.cells(["", "", "", ""]);
-                r.cell("Percent Change", |c| {
-                    c.colspan(2);
-                    c.align(Align::Center);
-                });
+                r.cell("Percent Change").colspan(2).align(Align::Center);
             });
 
             h.row(|r| {
@@ -40,18 +37,12 @@ fn builds_the_kotlin_sample_table_shape() {
             b.style(Style::new().fg(Color::Green));
             b.cell_borders(Borders::TOP_BOTTOM);
 
-            b.column(0, |c| {
-                c.align(Align::Left);
-                c.cell_borders(Borders::ALL);
-                c.style(Style::new().fg(Color::BrightBlue));
-            });
-            b.column(4, |c| {
-                c.cell_borders(Borders::LEFT_BOTTOM);
-                c.style(Style::new().fg(Color::BrightBlue));
-            });
-            b.column(5, |c| {
-                c.style(Style::new().fg(Color::BrightBlue));
-            });
+            b.column(0)
+                .align(Align::Left)
+                .cell_borders(Borders::ALL)
+                .style(Style::new().fg(Color::BrightBlue));
+            b.column(4).cell_borders(Borders::LEFT_BOTTOM).style(Style::new().fg(Color::BrightBlue));
+            b.column(5).style(Style::new().fg(Color::BrightBlue));
 
             b.row_styles([Style::new(), Style::new().dim()]);
 

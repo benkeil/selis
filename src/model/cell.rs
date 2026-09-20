@@ -2,6 +2,7 @@
 
 use crate::border::Borders;
 use crate::style::Style;
+use crate::text::truncate_with_ellipsis;
 
 /// A single cell of a [`crate::model::row::Row`].
 ///
@@ -28,13 +29,7 @@ impl Cell {
     /// Creates a new, unspanned (`colspan = rowspan = 1`) cell with the given
     /// text content and no style/border overrides.
     pub fn new(content: impl Into<String>) -> Self {
-        Cell {
-            content: content.into(),
-            colspan: 1,
-            rowspan: 1,
-            style: Style::new(),
-            borders: None,
-        }
+        Cell { content: content.into(), colspan: 1, rowspan: 1, style: Style::new(), borders: None }
     }
 
     /// Creates an empty (`""`) cell, used to auto-pad rows that have fewer
@@ -66,6 +61,21 @@ impl Cell {
     /// Sets this cell's border-side override.
     pub fn borders(mut self, borders: Borders) -> Self {
         self.borders = Some(borders);
+        self
+    }
+
+    /// Truncates this cell's content to `max_width` right now, appending
+    /// `"..."` if it had to cut anything off. This directly replaces
+    /// [`Self::content`] rather than affecting layout later, so the column
+    /// this cell ends up in is naturally sized around the truncated text.
+    pub fn truncate(self, max_width: usize) -> Self {
+        self.truncate_with(max_width, "...")
+    }
+
+    /// Like [`Self::truncate`], but with a custom `ellipsis` instead of the
+    /// default `"..."` (e.g. `"…"`).
+    pub fn truncate_with(mut self, max_width: usize, ellipsis: &str) -> Self {
+        self.content = truncate_with_ellipsis(&self.content, max_width, ellipsis);
         self
     }
 }
@@ -103,5 +113,17 @@ mod tests {
     #[should_panic(expected = "colspan must be at least 1")]
     fn colspan_zero_panics() {
         Cell::new("x").colspan(0);
+    }
+
+    #[test]
+    fn truncate_replaces_content_immediately() {
+        let cell = Cell::new("a very long piece of text").truncate(10);
+        assert_eq!(cell.content, "a very ...");
+    }
+
+    #[test]
+    fn truncate_with_uses_a_custom_ellipsis() {
+        let cell = Cell::new("a very long piece of text").truncate_with(8, "…");
+        assert_eq!(cell.content, "a very …");
     }
 }

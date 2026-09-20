@@ -12,6 +12,7 @@ use crate::layout::width::{self, SectionGrid};
 use crate::model::section::Section;
 use crate::model::table::Table;
 use crate::style::{Align, Style};
+use crate::text::truncate_with_ellipsis;
 
 /// Metadata about one section as laid out within the overall table (its
 /// resolved grid, and the global row index its first row starts at).
@@ -21,7 +22,9 @@ struct SectionInfo<'a> {
     row_offset: usize,
 }
 
-/// A fully-resolved origin cell, ready to be rendered.
+/// A fully-resolved origin cell, ready to be rendered. Its `content` is
+/// already truncated to fit any configured column-level `max_width` — no
+/// further truncation happens at render time.
 struct ResolvedCell {
     colspan: usize,
     content: String,
@@ -80,9 +83,25 @@ fn render_grid(table: &Table, column_count: usize) -> String {
 
     let section_grids: Vec<SectionGrid<'_>> = infos
         .iter()
-        .map(|info| SectionGrid { section: info.section, grid: &info.grid })
+        .map(|info| SectionGrid { section: info.section, grid: &info.grid, row_offset: info.row_offset })
         .collect();
-    let widths = width::compute_column_widths(&section_grids, column_count, 1);
+    // Resolve each column's effective max width: a section-scoped override
+    // (checked in header/body/footer order, so a later section wins if more
+    // than one sets it) beats the table-wide one, matching the same
+    // specificity order used for style/borders elsewhere in this function.
+    // Applied below by truncating each cell's own content *before* widths
+    // are computed, so the column ends up naturally sized to fit.
+    let max_widths: Vec<Option<usize>> = (0..column_count)
+        .map(|col| {
+            let mut resolved = table.columns.get(&col).and_then(|c| c.max_width);
+            for info in &infos {
+                if let Some(max_width) = info.section.columns.get(&col).and_then(|c| c.max_width) {
+                    resolved = Some(max_width);
+                }
+            }
+            resolved.and_then(|max_width| max_width.resolved_width())
+        })
+        .collect();
 
     // Resolve style/borders/content for every origin cell, keyed by its
     // global (row, col).
@@ -96,9 +115,11 @@ fn render_grid(table: &Table, column_count: usize) -> String {
                     let global_row = info.row_offset + local_row;
                     let cell = source_cell.map(|idx| &info.section.rows[*source_row].cells[idx]);
                     let column_override = info.section.columns.get(&col);
+                    let table_column_override = table.columns.get(&col);
 
                     let style = Style::cascade([
                         Some(&table.style),
+                        table_column_override.map(|c| &c.style),
                         Some(&info.section.style),
                         column_override.map(|c| &c.style),
                         Some(&info.section.rows[*source_row].style),
@@ -106,6 +127,7 @@ fn render_grid(table: &Table, column_count: usize) -> String {
                     ]);
                     let borders = [
                         table.borders,
+                        table_column_override.and_then(|c| c.borders),
                         info.section.borders,
                         column_override.and_then(|c| c.borders),
                         info.section.rows[*source_row].borders,
@@ -121,6 +143,10 @@ fn render_grid(table: &Table, column_count: usize) -> String {
                         Some(case) => case.apply(&content),
                         None => content,
                     };
+                    let content = match max_widths[col] {
+                        Some(max_width) => truncate_with_ellipsis(&content, max_width, "..."),
+                        None => content,
+                    };
                     resolved_cells.insert(
                         (global_row, col),
                         ResolvedCell { colspan: *colspan, content, style },
@@ -130,6 +156,16 @@ fn render_grid(table: &Table, column_count: usize) -> String {
             }
         }
     }
+
+    // Column widths are computed from the already-resolved (truncated,
+    // case-transformed) content, so a column's configured `max_width` is
+    // fully baked in by the time layout happens.
+    let content_overrides: HashMap<(usize, usize), usize> =
+        resolved_cells.iter().map(|(&pos, rc)| (pos, rc.content.width())).collect();
+    let widths =
+        width::compute_column_widths(&section_grids, column_count, 1, &content_overrides);
+
+
 
     // Build the block-id / borders matrices the BorderGrid needs, by
     // propagating each slot's origin's resolved values to every position it

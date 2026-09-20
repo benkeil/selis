@@ -16,10 +16,7 @@ fn build_classic_sample() -> Table {
             h.row(|r| {
                 r.cell_borders(Borders::NONE);
                 r.cells(["", "", "", ""]);
-                r.cell("Percent Change", |c| {
-                    c.colspan(2);
-                    c.align(Align::Center);
-                });
+                r.cell("Percent Change").colspan(2).align(Align::Center);
             });
 
             h.row(|r| {
@@ -32,18 +29,12 @@ fn build_classic_sample() -> Table {
             b.style(Style::new().fg(Color::Green));
             b.cell_borders(Borders::TOP_BOTTOM);
 
-            b.column(0, |c| {
-                c.align(Align::Left);
-                c.cell_borders(Borders::ALL);
-                c.style(Style::new().fg(Color::BrightBlue));
-            });
-            b.column(4, |c| {
-                c.cell_borders(Borders::LEFT_BOTTOM);
-                c.style(Style::new().fg(Color::BrightBlue));
-            });
-            b.column(5, |c| {
-                c.style(Style::new().fg(Color::BrightBlue));
-            });
+            b.column(0)
+                .align(Align::Left)
+                .cell_borders(Borders::ALL)
+                .style(Style::new().fg(Color::BrightBlue));
+            b.column(4).cell_borders(Borders::LEFT_BOTTOM).style(Style::new().fg(Color::BrightBlue));
+            b.column(5).style(Style::new().fg(Color::BrightBlue));
 
             b.row_styles([Style::new(), Style::new().dim()]);
 
@@ -108,14 +99,13 @@ fn build_github_sample() -> Table {
         t.align(Align::Right);
 
         t.header(|h| {
-            h.row_cells(["Header", "2020", "2021", "2022", "2020-21", "2021-22"]);
+            h.row(|r| {
+                r.cell("Header").align(Align::Left);
+                r.cells(["2020", "2021", "2022", "2020-21", "2021-22"]);
+            });
         });
 
         t.body(|b| {
-            b.column(0, |c| {
-                c.align(Align::Left);
-            });
-
             b.row_cells([
                 "Average income before taxes",
                 "$84,352",

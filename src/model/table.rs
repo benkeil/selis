@@ -2,7 +2,10 @@
 //! border settings, and the row-count validation/auto-padding described in
 //! the crate's design notes.
 
+use std::collections::BTreeMap;
+
 use crate::border::{BorderPreset, Borders};
+use crate::model::column::Column;
 use crate::model::row::Row;
 use crate::model::section::Section;
 use crate::style::Style;
@@ -27,6 +30,12 @@ pub struct Table {
     pub footer: Option<Section>,
     pub caption_top: Option<String>,
     pub caption_bottom: Option<String>,
+    /// Table-wide per-column overrides, keyed by (0-based) column index,
+    /// applying across header/body/footer alike (an "Excel-style" whole-
+    /// column selection). Less specific than a section-scoped
+    /// [`Section::columns`] override for the same index, which still wins
+    /// for that section.
+    pub columns: BTreeMap<usize, Column>,
     /// The number of columns in the table. Fixed by whichever row is pushed
     /// first (via [`Table::push_row`]); every row pushed afterwards is
     /// validated (or auto-padded) against it. `None` until the first row is
@@ -97,6 +106,12 @@ impl Table {
             SectionKind::Body => &mut self.body,
             SectionKind::Footer => self.footer.get_or_insert_with(Section::new),
         }
+    }
+
+    /// Returns a mutable reference to the table-wide override for
+    /// `column_index`, creating a default one if it doesn't exist yet.
+    pub fn column_mut(&mut self, column_index: usize) -> &mut Column {
+        self.columns.entry(column_index).or_default()
     }
 
     /// Appends `row` to the given section, after validating/fixing it up

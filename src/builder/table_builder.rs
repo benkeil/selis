@@ -3,9 +3,10 @@
 //! footer section builders.
 
 use crate::border::{BorderPreset, Borders};
+use crate::builder::column_builder::ColumnBuilder;
 use crate::builder::section_builder::SectionBuilder;
 use crate::model::table::{SectionKind, Table};
-use crate::style::{Align, Style};
+use crate::style::{Align, Color, Style};
 
 /// Closure-DSL builder for a [`Table`], passed to [`Table::build`].
 pub struct TableBuilder<'a> {
@@ -15,8 +16,12 @@ pub struct TableBuilder<'a> {
 impl TableBuilder<'_> {
     /// Sets the table-wide style override (the least-specific level of the
     /// style cascade: table -> section -> column -> row -> cell).
+    ///
+    /// Merges onto whatever was already set on this builder (e.g. via
+    /// [`Self::align`]), so call order doesn't matter. Pass a style marked
+    /// [`Style::exact`] to hard-reset everything set so far instead.
     pub fn style(&mut self, style: Style) -> &mut Self {
-        self.table.style = style;
+        self.table.style = if style.exact { style } else { self.table.style.merge(&style) };
         self
     }
 
@@ -24,6 +29,36 @@ impl TableBuilder<'_> {
     /// table's style).
     pub fn align(&mut self, align: Align) -> &mut Self {
         self.table.style = self.table.style.align(align);
+        self
+    }
+
+    /// Sets the table-wide foreground (text) color (merged into its style).
+    pub fn fg(&mut self, color: Color) -> &mut Self {
+        self.table.style = self.table.style.fg(color);
+        self
+    }
+
+    /// Sets the table-wide background color (merged into its style).
+    pub fn bg(&mut self, color: Color) -> &mut Self {
+        self.table.style = self.table.style.bg(color);
+        self
+    }
+
+    /// Enables bold text table-wide (merged into its style).
+    pub fn bold(&mut self) -> &mut Self {
+        self.table.style = self.table.style.bold();
+        self
+    }
+
+    /// Enables italic text table-wide (merged into its style).
+    pub fn italic(&mut self) -> &mut Self {
+        self.table.style = self.table.style.italic();
+        self
+    }
+
+    /// Enables underlined text table-wide (merged into its style).
+    pub fn underline(&mut self) -> &mut Self {
+        self.table.style = self.table.style.underline();
         self
     }
 
@@ -83,6 +118,17 @@ impl TableBuilder<'_> {
     pub fn footer(&mut self, f: impl FnOnce(&mut SectionBuilder)) -> &mut Self {
         f(&mut SectionBuilder::new(self.table, SectionKind::Footer));
         self
+    }
+
+    /// Overrides style/border settings for one column (by 0-based index)
+    /// across the *whole table* — header, body, and footer alike — much
+    /// like selecting an entire column in a spreadsheet. Less specific than
+    /// a section-scoped `column(...)` override for the same index (e.g. via
+    /// [`SectionBuilder::column`]), which still wins for that section only.
+    /// Returns a [`ColumnBuilder`] so settings can be chained directly, e.g.
+    /// `t.column(6).align(Align::Right);`.
+    pub fn column(&mut self, index: usize) -> ColumnBuilder<'_> {
+        ColumnBuilder { column: self.table.column_mut(index) }
     }
 }
 

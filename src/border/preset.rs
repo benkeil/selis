@@ -47,7 +47,7 @@ impl BorderPreset {
     /// header/body/footer sections, which use double-line characters.
     /// Mirrors Mordant's `SQUARE_DOUBLE_SECTION_SEPARATOR`.
     pub const fn square_double_section_separator() -> Self {
-        BorderPreset::custom(BorderChars::UTF8_SQUARE, Some(BorderChars::UTF8_DOUBLE))
+        BorderPreset::custom(BorderChars::UTF8_SQUARE, Some(BorderChars::UTF8_DOUBLE_HORIZONTAL))
     }
 
     /// The glyph set to use for a section-separator line, falling back to
@@ -77,7 +77,7 @@ mod tests {
     fn square_double_section_separator_uses_double_lines_for_separator() {
         let preset = BorderPreset::square_double_section_separator();
         assert_eq!(preset.chars, BorderChars::UTF8_SQUARE);
-        assert_eq!(preset.section_separator_chars(), BorderChars::UTF8_DOUBLE);
+        assert_eq!(preset.section_separator_chars(), BorderChars::UTF8_DOUBLE_HORIZONTAL);
     }
 
     #[test]

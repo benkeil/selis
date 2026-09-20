@@ -113,6 +113,27 @@ impl BorderChars {
         cross: '╬',
     };
 
+    /// Mixed glyphs for a *double horizontal* line crossing *single*
+    /// vertical lines — used e.g. as the section-separator line between
+    /// header/body/footer, whose verticals stay single (`│`) while only the
+    /// separator itself is doubled (`═`). Unlike [`BorderChars::UTF8_DOUBLE`]
+    /// (which is fully double, including the verticals), this uses the
+    /// dedicated "single vertical / double horizontal" Unicode glyphs
+    /// (`╪ ╤ ╧ ╞ ╡` and corners `╒ ╕ ╘ ╛`).
+    pub const UTF8_DOUBLE_HORIZONTAL: BorderChars = BorderChars {
+        horizontal: '═',
+        vertical: '│',
+        top_left: '╒',
+        top_right: '╕',
+        bottom_left: '╘',
+        bottom_right: '╛',
+        t_down: '╤',
+        t_up: '╧',
+        t_right: '╞',
+        t_left: '╡',
+        cross: '╪',
+    };
+
     /// Picks the correct glyph for a grid vertex given which of the four
     /// directions (up/right/down/left) have a border line entering it.
     ///
@@ -182,5 +203,19 @@ mod tests {
     #[test]
     fn junction_of_no_directions_is_space() {
         assert_eq!(BorderChars::UTF8_SQUARE.junction(false, false, false, false), ' ');
+    }
+
+    #[test]
+    fn double_horizontal_junction_keeps_single_verticals() {
+        let c = BorderChars::UTF8_DOUBLE_HORIZONTAL;
+        assert_eq!(c.junction(true, true, true, true), '╪');
+        assert_eq!(c.junction(false, true, true, true), '╤');
+        assert_eq!(c.junction(true, true, false, true), '╧');
+        assert_eq!(c.junction(true, true, true, false), '╞');
+        assert_eq!(c.junction(true, false, true, true), '╡');
+        assert_eq!(c.junction(false, true, true, false), '╒');
+        assert_eq!(c.junction(false, false, true, true), '╕');
+        assert_eq!(c.junction(true, true, false, false), '╘');
+        assert_eq!(c.junction(true, false, false, true), '╛');
     }
 }

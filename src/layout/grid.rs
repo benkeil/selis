@@ -106,9 +106,9 @@ pub fn resolve(section: &Section, column_count: usize) -> Grid {
         // Auto-pad any positions in this row that are still free (not
         // covered by one of this row's own cells, and not carried over from
         // an earlier row's rowspan) with an empty, unspanned cell.
-        for c in 0..column_count {
-            if slots[row_idx][c].is_none() {
-                slots[row_idx][c] = Some(GridSlot::Origin {
+        for slot in slots[row_idx].iter_mut().take(column_count) {
+            if slot.is_none() {
+                *slot = Some(GridSlot::Origin {
                     source_row: row_idx,
                     source_cell: None,
                     colspan: 1,

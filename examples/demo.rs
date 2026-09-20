@@ -108,7 +108,10 @@ fn build_github_sample() -> Table {
         t.align(Align::Right);
 
         t.header(|h| {
-            h.row(["", "2020", "2021", "2022", "2020-21", "2021-22"]);
+            h.column(0, |c| {
+                c.align(Align::Left);
+            });
+            h.row(["Header", "2020", "2021", "2022", "2020-21", "2021-22"]);
         });
 
         t.body(|b| {
@@ -116,8 +119,22 @@ fn build_github_sample() -> Table {
                 c.align(Align::Left);
             });
 
-            b.row(["Average income before taxes", "$84,352", "$87,432", "$94,003", "3.7", "7.5"]);
-            b.row(["Average annual expenditures", "$61,332", "$66,928", "$72,967", "9.1", "9.0"]);
+            b.row([
+                "Average income before taxes",
+                "$84,352",
+                "$87,432",
+                "$94,003",
+                "3.7",
+                "7.5",
+            ]);
+            b.row([
+                "Average annual expenditures",
+                "$61,332",
+                "$66,928",
+                "$72,967",
+                "9.1",
+                "9.0",
+            ]);
             b.row(["Food", "7,310", "8,289", "9,343", "13.4", "12.7"]);
             b.row(["Housing", "21,417", "22,624", "24,298", "5.6", "7.4"]);
         });

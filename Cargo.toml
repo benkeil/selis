@@ -1,0 +1,11 @@
+[package]
+name = "selis"
+version = "0.1.0"
+edition = "2024"
+description = "A Kotlin-Mordant-inspired, closure-based DSL for rendering styled terminal tables."
+license = "MIT"
+
+[dependencies]
+anstyle = "1"
+unicode-width = "0.2"
+bitflags = "2"

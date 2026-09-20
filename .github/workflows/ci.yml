@@ -22,25 +22,18 @@ jobs:
       - run: cargo build --all-targets
       - run: cargo test
       - run: cargo clippy --all-targets -- -D warnings
-      - name: Install cocogitto
+      - name: Check commit messages
         uses: cocogitto/cocogitto-action@v4.2.0
         with:
-          install-only: true
-      # Debug step: running `cog` directly (rather than through the
-      # action's `command:` input) so real errors are visible in the log.
-      # cog.sh captures the command's output via `stdout="$(cog ... 2>&1)"`
-      # under `set -e`, so a failing `cog` call aborts the script right
-      # there, before the line that would print `$stdout` — the log then
-      # only shows "Process completed with exit code 1" with no
-      # explanation (confirmed present in v4.0.0 through v4.2.0). Revert to
-      # the action-recommended form below once that's fixed upstream:
-      #
-      # - name: Check commit messages
-      #   uses: cocogitto/cocogitto-action@v4.2.0
-      #   with:
-      #     command: check
-      #     args: --from-latest-tag
-      - run: cog check --from-latest-tag
+          command: check
+          args: --from-latest-tag
+      # Debug fallback if this ever fails with no useful error: cog.sh
+      # captures output via `stdout="$(cog ... 2>&1)"` under `set -e`, so a
+      # failing `cog` call aborts the script before the line that would
+      # print `$stdout` — the log then only shows "Process completed with
+      # exit code 1" (confirmed in v4.0.0 through v4.2.0). Swap to running
+      # `cog` directly to see the real error:
+      # - run: cog check --from-latest-tag
 
   release:
     name: Release
@@ -56,25 +49,19 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo install cargo-edit
-      - name: Install cocogitto
+      - name: Bump version
+        id: release
         uses: cocogitto/cocogitto-action@v4.2.0
         with:
-          install-only: true
-      # Debug step: see the comment in the `test` job above for why this
-      # runs `cog` directly instead of the action-recommended form below.
-      #
-      # - name: Bump version
-      #   id: release
-      #   uses: cocogitto/cocogitto-action@v4.2.0
-      #   with:
-      #     command: bump
-      #     args: --auto
-      #     git-user: github-actions[bot]
-      #     git-user-email: github-actions[bot]@users.noreply.github.com
-      - run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          cog bump --auto
+          command: bump
+          args: --auto
+          git-user: github-actions[bot]
+          git-user-email: github-actions[bot]@users.noreply.github.com
+      # Debug fallback: see the comment in the `test` job above.
+      # - run: |
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     cog bump --auto
       - run: cargo publish --token "$CARGO_REGISTRY_TOKEN"
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

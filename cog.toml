@@ -10,10 +10,12 @@ pre_bump_hooks = [
     "cargo check",
 ]
 
-# `cog bump` doesn't push on its own either.
+# `cog bump` doesn't push on its own either. `version_tag` (not `version`)
+# includes `tag_prefix`, matching the tag `cog` actually created (`v1.2.3`,
+# not `1.2.3`) — using `version` here pushes a nonexistent ref.
 post_bump_hooks = [
     "git push",
-    "git push origin {{version}}",
+    "git push origin {{version_tag}}",
 ]
 
 [changelog]

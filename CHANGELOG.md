@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file. See [conven
 - - -
 ## [v0.2.1](https://github.com/benkeil/selis/compare/24fac0e810a8524350f5bb0ded62c5aff37009b3..v0.2.1) - 2026-09-20
 #### Bug Fixes
+- release process - ([53b308d](https://github.com/benkeil/selis/commit/53b308dcbd0139809647efcff3e7a9ca4485ef85)) - Ben Keil
+- release process - ([24fac0e](https://github.com/benkeil/selis/commit/24fac0e810a8524350f5bb0ded62c5aff37009b3)) - Ben Keil
+#### Miscellaneous Chores
+- (**version**) v0.2.1 - ([225e7b1](https://github.com/benkeil/selis/commit/225e7b12682ba88044cc33f673d24654090dfa8b)) - github-actions[bot]
+
+- - -
+
+## [v0.2.1](https://github.com/benkeil/selis/compare/24fac0e810a8524350f5bb0ded62c5aff37009b3..v0.2.1) - 2026-09-20
+#### Bug Fixes
 - release process - ([24fac0e](https://github.com/benkeil/selis/commit/24fac0e810a8524350f5bb0ded62c5aff37009b3)) - Ben Keil
 
 - - -

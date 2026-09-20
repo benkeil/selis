@@ -14,6 +14,13 @@ pub struct Section {
     pub rows: Vec<Row>,
     pub style: Style,
     pub borders: Option<Borders>,
+    /// Alternating (zebra-striping) styles applied to rows by position
+    /// within this section, cycling through the list. Empty means no
+    /// zebra-striping. Can be set directly via [`crate::builder::section_builder::SectionBuilder::row_styles`]
+    /// or pre-populated by a [`crate::theme::Theme`] (e.g. its
+    /// `body_zebra_styles`), so themes can supply a default that a section
+    /// can still override.
+    pub zebra_styles: Vec<Style>,
     /// Per-column overrides scoped to this section, keyed by (0-based)
     /// column index, matching the Mordant DSL's `column(index) { ... }`
     /// blocks nested inside `header`/`body`/`footer`.

@@ -15,16 +15,11 @@ use crate::style::{Align, Color, Style};
 pub struct SectionBuilder<'a> {
     pub(crate) table: &'a mut Table,
     pub(crate) kind: SectionKind,
-    /// Set by [`Self::row_styles`]: alternating styles applied to each row
-    /// added afterwards (by position within this section), matching the
-    /// Mordant DSL's `rowStyles(...)`. An explicit `.style(...)` set on a
-    /// row via [`Self::row`] takes precedence over its zebra style.
-    zebra_styles: Vec<Style>,
 }
 
 impl<'a> SectionBuilder<'a> {
     pub(crate) fn new(table: &'a mut Table, kind: SectionKind) -> Self {
-        SectionBuilder { table, kind, zebra_styles: Vec::new() }
+        SectionBuilder { table, kind }
     }
 
     /// Sets this section's style override.
@@ -93,9 +88,13 @@ impl<'a> SectionBuilder<'a> {
     /// Sets alternating (zebra-striping) styles applied to each row added
     /// afterwards, cycling through `styles` by row position within this
     /// section. Any style an individual row sets explicitly (via
-    /// [`Self::row`]) wins over its zebra style.
+    /// [`Self::row`]) wins over its zebra style. Stored directly on the
+    /// [`crate::model::section::Section`] model (not just this builder), so
+    /// a [`crate::theme::Theme`] can pre-populate it (e.g. `body_zebra_styles`)
+    /// before this method is ever called; calling it here always replaces
+    /// whatever was set before (by a theme or an earlier call).
     pub fn row_styles(&mut self, styles: impl IntoIterator<Item = Style>) -> &mut Self {
-        self.zebra_styles = styles.into_iter().collect();
+        self.table.section_mut(self.kind).zebra_styles = styles.into_iter().collect();
         self
     }
 
@@ -128,13 +127,14 @@ impl<'a> SectionBuilder<'a> {
     }
 
     fn push_row(&mut self, mut row: Row) {
-        if !self.zebra_styles.is_empty() {
+        let zebra_styles = &self.table.section(self.kind).map(|s| s.zebra_styles.clone()).unwrap_or_default();
+        if !zebra_styles.is_empty() {
             let row_index = self
                 .table
                 .section(self.kind)
                 .map(|s| s.rows.len())
                 .unwrap_or(0);
-            let zebra = self.zebra_styles[row_index % self.zebra_styles.len()];
+            let zebra = zebra_styles[row_index % zebra_styles.len()];
             row.style = Style::cascade([Some(&zebra), Some(&row.style)]);
         }
         self.table.push_row(self.kind, row);

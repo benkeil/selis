@@ -99,6 +99,7 @@ impl TableBuilder<'_> {
         self.table.borders = Some(theme.table_borders);
         self.table.style = theme.table_style;
         self.table.section_mut(SectionKind::Header).style = theme.header_style;
+        self.table.section_mut(SectionKind::Body).zebra_styles = theme.body_zebra_styles;
         self
     }
 

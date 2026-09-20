@@ -13,7 +13,7 @@ fn main() {
     let runs = sample_runs();
 
     let table = Table::build(|t| {
-        t.theme(classic());
+        t.theme(github());
 
         t.header(|h| {
             h.row(|r| {

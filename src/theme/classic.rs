@@ -13,6 +13,7 @@ pub fn classic() -> Theme {
         table_borders: Borders::ALL,
         table_style: Style::new(),
         header_style: Style::new().bold(),
+        body_zebra_styles: Vec::new(),
     }
 }
 

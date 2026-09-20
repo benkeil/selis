@@ -14,7 +14,14 @@ pub fn github() -> Theme {
         table_borders: Borders::NONE,
         table_style: Style::new(),
         header_style: Style::new().underline().uppercase().fg(Color::BrightBlack),
+        body_zebra_styles: Vec::new(),
     }
+}
+
+/// Builds a GitHub-style [`Theme`] with subtle zebra-striping on the body
+/// (every other row dimmed), otherwise identical to [`github`].
+pub fn github_zebra() -> Theme {
+    Theme { body_zebra_styles: vec![Style::new(), Style::new().dim()], ..github() }
 }
 
 #[cfg(test)]
@@ -65,5 +72,46 @@ mod tests {
         // The header content is uppercased.
         assert!(header_line.contains("NAME"));
         assert!(header_line.contains("STARS"));
+    }
+
+    #[test]
+    fn github_zebra_pre_populates_the_body_sections_zebra_styles() {
+        let table = Table::build(|t| {
+            t.theme(github_zebra());
+            t.body(|b| {
+                b.row_cells(["a", "1"]);
+                b.row_cells(["b", "2"]);
+            });
+        });
+
+        let body = table.section(SectionKind::Body).unwrap();
+        assert_eq!(body.zebra_styles.len(), 2);
+        assert_eq!(body.rows[0].style.resolved_dim(), None);
+        assert_eq!(body.rows[1].style.resolved_dim(), Some(true));
+    }
+
+    #[test]
+    fn github_zebra_is_otherwise_identical_to_github() {
+        assert_eq!(
+            Theme { body_zebra_styles: Vec::new(), ..github_zebra() },
+            github()
+        );
+    }
+
+    #[test]
+    fn a_section_can_still_override_the_themes_zebra_default() {
+        let table = Table::build(|t| {
+            t.theme(github_zebra());
+            t.body(|b| {
+                b.row_styles([Style::new().fg(Color::Green)]);
+                b.row_cells(["a", "1"]);
+                b.row_cells(["b", "2"]);
+            });
+        });
+
+        let body = table.section(SectionKind::Body).unwrap();
+        assert_eq!(body.rows[0].style.resolved_fg(), Some(Color::Green));
+        assert_eq!(body.rows[1].style.resolved_fg(), Some(Color::Green));
+        assert_eq!(body.rows[1].style.resolved_dim(), None);
     }
 }

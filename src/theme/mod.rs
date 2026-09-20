@@ -21,6 +21,12 @@ pub struct Theme {
     pub table_borders: Borders,
     pub table_style: Style,
     pub header_style: Style,
+    /// Alternating (zebra-striping) styles applied to the body section's
+    /// rows by position, matching [`crate::builder::section_builder::SectionBuilder::row_styles`].
+    /// Empty means no zebra-striping (the default for built-in themes that
+    /// don't request it). Only applied to `body` — header/footer can still
+    /// set their own via `h.row_styles(...)`/`f.row_styles(...)` if desired.
+    pub body_zebra_styles: Vec<Style>,
 }
 
 #[cfg(test)]

@@ -31,6 +31,6 @@ pub mod prelude {
     pub use crate::border::{BorderChars, BorderPreset, Borders};
     pub use crate::model::{Cell, Column, MaxWidth, Row, SectionKind, Table};
     pub use crate::style::{Align, Case, Color, Style};
-    pub use crate::theme::{classic::classic, github::github, Theme};
+    pub use crate::theme::{classic::classic, github::github, github::github_zebra, Theme};
 }
 

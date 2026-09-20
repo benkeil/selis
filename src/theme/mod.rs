@@ -2,7 +2,9 @@
 
 pub mod classic;
 pub mod github;
+pub mod minimal_zebra;
 pub mod plain;
+pub mod rounded;
 
 use crate::border::{BorderPreset, Borders};
 use crate::style::Style;
@@ -13,7 +15,7 @@ use crate::style::Style;
 ///
 /// Since `theme(...)` just sets these same fields a user could set by hand,
 /// calling it before further customizing the table (e.g. `t.header(|h| {
-/// h.style(..) })`) lets that customization still override the theme, same
+/// h.style(...) })`) lets that customization still override the theme, same
 /// as any other cascade level — call `theme(...)` first, as the least
 /// specific/"default" layer.
 #[derive(Debug, Clone, PartialEq, Eq)]

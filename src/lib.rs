@@ -32,7 +32,7 @@ pub mod prelude {
     pub use crate::model::{Cell, Column, MaxWidth, Row, SectionKind, Table};
     pub use crate::style::{Align, Case, Color, Style};
     pub use crate::theme::{
-        classic::classic, github::github, github::github_zebra, plain::plain, Theme,
+        Theme, classic::classic, github::github, github::github_zebra,
+        minimal_zebra::minimal_zebra, plain::plain, rounded::rounded,
     };
 }
-

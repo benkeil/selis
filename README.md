@@ -48,8 +48,8 @@ println!("{}", table.render());
   (`ascii`, `utf8_square`, `utf8_rounded`, `square_double_section_separator`,
   …) or fully custom `BorderChars`.
 - **Themes** — bundle border preset + table style + header style in one call
-  (`plain`, `github`, `github_zebra`, `classic`), still overridable at any
-  more specific level afterwards.
+  (`plain`, `github`, `github_zebra`, `classic`, `rounded`, `minimal_zebra`),
+  still overridable at any more specific level afterwards.
 - **Zebra striping** — alternating row styles by position, settable directly
   or pre-populated by a theme.
 - **Max width & truncation** — cap a column's width (ellipsis-truncating
@@ -127,9 +127,11 @@ let table = Table::build(|t| {
 ```
 
 Built-in themes: `plain` (no borders, no styling), `github`/`github_zebra`
-(borderless, uppercase underlined header, optional zebra striping), and
+(borderless, uppercase underlined header, optional zebra striping),
 `classic` (square borders with a double-line separator between sections,
-bold header) — matching the original Kotlin/Mordant sample.
+bold header, matching the original Kotlin/Mordant sample), `rounded`
+(rounded-corner borders, bold cyan header), and `minimal_zebra` (borderless,
+no header styling, subtle zebra striping — for dense data tables).
 
 ### Suppressing the header/footer for CLI-style output
 

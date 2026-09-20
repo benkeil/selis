@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 description = "A Kotlin-Mordant-inspired, closure-based DSL for rendering styled terminal tables."
 license = "MIT OR Apache-2.0"
+keywords = ["table", "terminal", "cli", "ascii", "pretty"]
+categories = ["command-line-interface", "text-processing", "visualization"]
 
 [dependencies]
 anstyle = "1"

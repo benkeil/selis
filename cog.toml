@@ -3,4 +3,7 @@ skip_ci = "[skip ci]"
 
 [changelog]
 path = "CHANGELOG.md"
-template = "keepachangelog"
+template = "remote"
+remote = "github.com"
+owner = "benkeil"
+repository = "selis"

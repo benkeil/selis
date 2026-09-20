@@ -2,6 +2,7 @@
 
 pub mod classic;
 pub mod github;
+pub mod plain;
 
 use crate::border::{BorderPreset, Borders};
 use crate::style::Style;

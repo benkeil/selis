@@ -57,7 +57,9 @@ pub fn render(table: &Table) -> String {
 fn render_grid(table: &Table, column_count: usize) -> String {
     let mut infos = Vec::new();
     let mut row_offset = 0;
-    if let Some(header) = &table.header {
+    if let Some(header) = &table.header
+        && table.show_header
+    {
         infos.push(SectionInfo {
             section: header,
             grid: grid::resolve(header, column_count),
@@ -71,7 +73,9 @@ fn render_grid(table: &Table, column_count: usize) -> String {
         row_offset,
     });
     row_offset += table.body.rows.len();
-    if let Some(footer) = &table.footer {
+    if let Some(footer) = &table.footer
+        && table.show_footer
+    {
         infos.push(SectionInfo {
             section: footer,
             grid: grid::resolve(footer, column_count),

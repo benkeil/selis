@@ -13,7 +13,7 @@ pub fn github() -> Theme {
         border_preset: BorderPreset::none(),
         table_borders: Borders::NONE,
         table_style: Style::new(),
-        header_style: Style::new().underline().uppercase().fg(Color::BrightBlack),
+        header_style: Style::new().underline().uppercase().fg(Color::BrightBlack).bold(),
         body_zebra_styles: Vec::new(),
     }
 }

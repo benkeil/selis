@@ -398,6 +398,86 @@ fn style_shortcuts_are_available_on_every_builder_level() {
 }
 
 #[test]
+fn show_header_defaults_to_true_and_renders_as_before() {
+    let table = Table::build(|t| {
+        t.border(BorderPreset::utf8_square());
+        t.header(|h| {
+            h.row_cells(["Name", "Stars"]);
+        });
+        t.body(|b| {
+            b.row_cells(["ratatui", "12.3k"]);
+        });
+    });
+
+    let expected = "\
+┌───────┬─────┐
+│Name   │Stars│
+├───────┼─────┤
+│ratatui│12.3k│
+└───────┴─────┘";
+
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn show_header_false_suppresses_header_rows_and_separator() {
+    let table = Table::build(|t| {
+        t.border(BorderPreset::utf8_square());
+        t.header(|h| {
+            h.row_cells(["Name", "Stars"]);
+        });
+        t.body(|b| {
+            b.row_cells(["ratatui", "12.3k"]);
+        });
+        t.show_header(false);
+    });
+
+    let expected = "\
+┌───────┬─────┐
+│ratatui│12.3k│
+└───────┴─────┘";
+
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn show_footer_false_suppresses_footer_rows_and_separator() {
+    let table = Table::build(|t| {
+        t.border(BorderPreset::utf8_square());
+        t.body(|b| {
+            b.row_cells(["ratatui", "12.3k"]);
+        });
+        t.footer(|f| {
+            f.row_cells(["Total", "12.3k"]);
+        });
+        t.show_footer(false);
+    });
+
+    let expected = "\
+┌───────┬─────┐
+│ratatui│12.3k│
+└───────┴─────┘";
+
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn show_header_false_does_not_affect_column_count_or_stored_rows() {
+    let table = Table::build(|t| {
+        t.header(|h| {
+            h.row_cells(["Name", "Stars"]);
+        });
+        t.body(|b| {
+            b.row_cells(["ratatui", "12.3k"]);
+        });
+        t.show_header(false);
+    });
+
+    assert_eq!(table.column_count(), Some(2));
+    assert_eq!(table.header.as_ref().unwrap().rows[0].cells.len(), 2);
+}
+
+#[test]
 fn style_shortcuts_merge_with_previously_set_fields_on_the_same_builder() {
     // A shortcut like `.fg(...)` must merge onto the builder's style just
     // like `.align()` does, so a preceding `.align()` call survives.

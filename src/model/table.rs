@@ -20,7 +20,7 @@ pub enum SectionKind {
 
 /// A complete table: header/body/footer sections, table-wide style and
 /// border settings, and an optional caption.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Table {
     pub style: Style,
     pub borders: Option<Borders>,
@@ -36,11 +36,38 @@ pub struct Table {
     /// [`Section::columns`] override for the same index, which still wins
     /// for that section.
     pub columns: BTreeMap<usize, Column>,
+    /// Whether the header section is rendered (including any border/
+    /// separator lines that exist purely because of its presence). Defaults
+    /// to `true`. Does not affect the header's configured rows/styles/
+    /// columns, or `column_count()` — only whether it's emitted at render
+    /// time.
+    pub show_header: bool,
+    /// Whether the footer section is rendered. See [`Self::show_header`].
+    pub show_footer: bool,
     /// The number of columns in the table. Fixed by whichever row is pushed
     /// first (via [`Table::push_row`]); every row pushed afterwards is
     /// validated (or auto-padded) against it. `None` until the first row is
     /// pushed.
     column_count: Option<usize>,
+}
+
+impl Default for Table {
+    fn default() -> Self {
+        Self {
+            style: Style::default(),
+            borders: None,
+            border_preset: BorderPreset::default(),
+            header: None,
+            body: Section::default(),
+            footer: None,
+            caption_top: None,
+            caption_bottom: None,
+            columns: BTreeMap::new(),
+            show_header: true,
+            show_footer: true,
+            column_count: None,
+        }
+    }
 }
 
 impl Table {

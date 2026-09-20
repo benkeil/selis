@@ -14,6 +14,8 @@ fn main() {
 
     let table = Table::build(|t| {
         t.theme(github());
+        t.show_header(true);
+        t.show_footer(true);
 
         t.header(|h| {
             h.row(|r| {

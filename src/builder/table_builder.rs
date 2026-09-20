@@ -88,6 +88,21 @@ impl TableBuilder<'_> {
         self
     }
 
+    /// Sets whether the header section is rendered (defaults to `true`).
+    /// Purely a rendering toggle: the header's configured rows/styles/
+    /// columns are untouched, so setting this back to `true` later still
+    /// renders with everything as configured.
+    pub fn show_header(&mut self, visible: bool) -> &mut Self {
+        self.table.show_header = visible;
+        self
+    }
+
+    /// Sets whether the footer section is rendered. See [`Self::show_header`].
+    pub fn show_footer(&mut self, visible: bool) -> &mut Self {
+        self.table.show_footer = visible;
+        self
+    }
+
     /// Applies a [`crate::theme::Theme`] preset (border preset, default
     /// border sides, table style, and header style) in one call. Because
     /// this simply assigns those same fields a user could set individually,

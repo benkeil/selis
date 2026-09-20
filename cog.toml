@@ -1,6 +1,21 @@
 tag_prefix = "v"
 skip_ci = "[skip ci]"
 
+# `cog bump` only determines a version number and tags it — it doesn't know
+# to update Cargo.toml's `version` field on its own, so that (and keeping
+# Cargo.lock in sync) has to be an explicit hook. Both get committed as part
+# of the version commit, same as the changelog.
+pre_bump_hooks = [
+    """sed -i 's/^version = ".*"/version = "{{version}}"/' Cargo.toml""",
+    "cargo check",
+]
+
+# `cog bump` doesn't push on its own either.
+post_bump_hooks = [
+    "git push",
+    "git push origin {{version}}",
+]
+
 [changelog]
 path = "CHANGELOG.md"
 template = "remote"

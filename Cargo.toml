@@ -1,6 +1,6 @@
 [package]
 name = "selis"
-version = "0.1.0"
+version = "0.2.1"
 edition = "2024"
 description = "A Kotlin-Mordant-inspired, closure-based DSL for rendering styled terminal tables."
 license = "MIT OR Apache-2.0"

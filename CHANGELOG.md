@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v0.2.1](https://github.com/benkeil/selis/compare/24fac0e810a8524350f5bb0ded62c5aff37009b3..v0.2.1) - 2026-09-20
+#### Bug Fixes
+- release process - ([24fac0e](https://github.com/benkeil/selis/commit/24fac0e810a8524350f5bb0ded62c5aff37009b3)) - Ben Keil
+
+- - -
+
 ## [v0.2.0](https://github.com/benkeil/selis/compare/370068371e684437ed3b4a1d961b66aef5169455..v0.2.0) - 2026-09-20
 #### Features
 - replace max_width with a full column width-fitting system - ([3700683](https://github.com/benkeil/selis/commit/370068371e684437ed3b4a1d961b66aef5169455)) - Ben Keil, Claude Sonnet 5

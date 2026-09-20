@@ -1,0 +1,6 @@
+tag_prefix = "v"
+skip_ci = "[skip ci]"
+
+[changelog]
+path = "CHANGELOG.md"
+template = "keepachangelog"

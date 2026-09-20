@@ -103,6 +103,33 @@ impl TableBuilder<'_> {
         self
     }
 
+    /// Shrinks columns (down to their `min_width`, or `1` for columns
+    /// without one) so the table's content region never exceeds `width`;
+    /// a table that's already narrower renders as-is. Disabled by default
+    /// (`None`) — call this explicitly to opt in. See
+    /// [`crate::model::table::Table::cap_width`] for exactly what `width`
+    /// does and doesn't account for.
+    pub fn cap_to_width(&mut self, width: usize) -> &mut Self {
+        self.table.cap_width = Some(width);
+        self
+    }
+
+    /// Like [`Self::cap_to_width`], but detects the current terminal's width
+    /// via [`crate::terminal_width`] instead of taking one explicitly,
+    /// falling back to `fallback` if it can't be determined (e.g. stdout
+    /// isn't a terminal).
+    pub fn cap_to_terminal_width(&mut self, fallback: usize) -> &mut Self {
+        self.cap_to_width(crate::terminal_width().unwrap_or(fallback))
+    }
+
+    /// Sets the string appended to a cell's content whenever it has to be
+    /// truncated — by a column's `max_width`/`width`/`cap_width`, or by a
+    /// cell's own `.truncate(n)`. Defaults to `"…"`.
+    pub fn ellipsis(&mut self, ellipsis: impl Into<String>) -> &mut Self {
+        self.table.ellipsis = ellipsis.into();
+        self
+    }
+
     /// Applies a [`crate::theme::Theme`] preset (border preset, default
     /// border sides, table style, and header style) in one call. Because
     /// this simply assigns those same fields a user could set individually,

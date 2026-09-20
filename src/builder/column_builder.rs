@@ -2,7 +2,6 @@
 
 use crate::border::Borders;
 use crate::model::column::Column;
-use crate::model::max_width::MaxWidth;
 use crate::style::{Align, Color, Style};
 
 /// Closure-DSL builder for one [`Column`] override, passed to
@@ -64,12 +63,35 @@ impl ColumnBuilder<'_> {
         self
     }
 
+    /// Sets this column's minimum width; it never renders narrower than
+    /// this, even if its content is narrower.
+    pub fn min_width(&mut self, min_width: usize) -> &mut Self {
+        self.column.min_width = Some(min_width);
+        self
+    }
+
+    /// Forces this column to render at exactly this width: narrower content
+    /// is padded, wider content is truncated (with a trailing ellipsis).
+    /// Ignores `min_width`/`max_width` when set.
+    pub fn width(&mut self, width: usize) -> &mut Self {
+        self.column.width = Some(width);
+        self
+    }
+
     /// Sets this column's maximum width; content wider than this gets
-    /// truncated (with a trailing `...`) to fit, e.g.
-    /// `c.max_width(20);` or, for the (not yet implemented) auto mode,
-    /// `c.max_width(MaxWidth::Auto);`.
-    pub fn max_width(&mut self, max_width: impl Into<MaxWidth>) -> &mut Self {
-        self.column.max_width = Some(max_width.into());
+    /// truncated (with a trailing ellipsis) to fit, e.g. `c.max_width(20);`.
+    pub fn max_width(&mut self, max_width: usize) -> &mut Self {
+        self.column.max_width = Some(max_width);
+        self
+    }
+
+    /// Marks this column as the one that absorbs whatever width is left
+    /// over after every other column, once `cap_width` is set: it grows to
+    /// fill slack, or shrinks (truncating its content) if there isn't any.
+    /// A no-op without `cap_width`. Only one column per table may be marked
+    /// `flex`; the renderer panics if more than one is.
+    pub fn flex(&mut self) -> &mut Self {
+        self.column.flex = true;
         self
     }
 }

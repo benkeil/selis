@@ -38,10 +38,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           cog bump --auto
-          git push --follow-tags
+          git push
+          git push --tags
       - run: cargo publish --token "$CARGO_REGISTRY_TOKEN"
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-      - run: gh release create "$(git describe --tags --abbrev=0)" --generate-notes
+      - run: |
+          TAG="$(git describe --tags --abbrev=0)"
+          cog changelog --at "$TAG" > release-notes.md
+          gh release create "$TAG" --notes-file release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

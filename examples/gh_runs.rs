@@ -36,7 +36,7 @@ fn main() {
                     r.cell(run.status.glyph().to_string())
                         .fg(run.status.color())
                         .bold();
-                    r.cell(run.title.to_string());
+                    r.cell(run.title.to_string()).truncate(100);
                     r.cell(run.workflow.to_string());
                     r.cell(run.branch.to_string());
                     r.cell(run.event.to_string());

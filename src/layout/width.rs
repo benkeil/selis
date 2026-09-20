@@ -33,12 +33,13 @@ pub struct SectionGrid<'a> {
 /// more room than that, the extra width is distributed as evenly as
 /// possible across the spanned columns.
 ///
-/// `content_overrides` (keyed by global `(row, col)`) supplies the final,
-/// already-resolved content width for a cell if present — this is how a
-/// column's `max_width` (see [`crate::model::MaxWidth`]) takes effect: the
-/// caller truncates a cell's content before computing widths, and passes
-/// the truncated width in here, so the column is naturally sized to fit.
-/// Cells without an override fall back to their raw model content width.
+/// `content_overrides` (keyed by global `(row, col)`) supplies a cell's
+/// already-resolved (case-transformed) content width if present, so a
+/// case transform is reflected in the *natural* width this function
+/// computes. Column-level `min_width`/`width`/`max_width` constraints and
+/// any resulting truncation are applied by the caller afterwards, against
+/// this natural width — they don't feed into it. Cells without an override
+/// fall back to their raw model content width.
 pub fn compute_column_widths(
     sections: &[SectionGrid<'_>],
     column_count: usize,

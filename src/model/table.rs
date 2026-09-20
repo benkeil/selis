@@ -44,6 +44,22 @@ pub struct Table {
     pub show_header: bool,
     /// Whether the footer section is rendered. See [`Self::show_header`].
     pub show_footer: bool,
+    /// If set, the renderer shrinks columns (down to their `min_width`, or
+    /// `1` for columns without one) so the table's content region — column
+    /// widths plus one separator character between adjacent columns — never
+    /// exceeds this target; a table that's already narrower is left as-is
+    /// (this only ever shrinks, never grows — a marked `flex` column is the
+    /// exception, since its whole point is to grow into the remaining
+    /// space). Does not account for the table's own outer border
+    /// characters; subtract a couple of characters yourself if rendering
+    /// with visible left/right borders. `None` (the default) disables this
+    /// entirely — the table renders at its natural width, same as before
+    /// this existed.
+    pub cap_width: Option<usize>,
+    /// The string appended to a cell's content when it has to be truncated —
+    /// whether by a column's `max_width`/`width`/`cap_width`, or by a cell's
+    /// own `.truncate(n)`. Defaults to `"…"`.
+    pub ellipsis: String,
     /// The number of columns in the table. Fixed by whichever row is pushed
     /// first (via [`Table::push_row`]); every row pushed afterwards is
     /// validated (or auto-padded) against it. `None` until the first row is
@@ -65,6 +81,8 @@ impl Default for Table {
             columns: BTreeMap::new(),
             show_header: true,
             show_footer: true,
+            cap_width: None,
+            ellipsis: "…".to_string(),
             column_count: None,
         }
     }

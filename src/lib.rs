@@ -18,19 +18,22 @@ pub mod layout;
 pub mod model;
 pub mod render;
 pub mod style;
+mod terminal;
 mod text;
 pub mod theme;
 
 pub use border::{BorderChars, BorderPreset, Borders};
-pub use model::{Cell, Column, MaxWidth, Row, SectionKind, Table};
+pub use model::{Cell, Column, Row, SectionKind, Table};
 pub use style::{Align, Case, Color, Style};
+pub use terminal::terminal_width;
 pub use theme::Theme;
 
 /// Convenient glob-import of the most commonly used types.
 pub mod prelude {
     pub use crate::border::{BorderChars, BorderPreset, Borders};
-    pub use crate::model::{Cell, Column, MaxWidth, Row, SectionKind, Table};
+    pub use crate::model::{Cell, Column, Row, SectionKind, Table};
     pub use crate::style::{Align, Case, Color, Style};
+    pub use crate::terminal::terminal_width;
     pub use crate::theme::{
         Theme, classic::classic, github::github, github::github_zebra,
         minimal_zebra::minimal_zebra, plain::plain, rounded::rounded,

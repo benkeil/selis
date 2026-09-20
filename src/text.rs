@@ -1,6 +1,6 @@
 //! Small text-truncation helpers shared by [`crate::model::cell::Cell`]'s
-//! eager `truncate`/`truncate_with` and the renderer's column-level
-//! `max_width` cascade.
+//! eager `truncate`/`truncate_with` and the renderer's final pass that
+//! truncates each cell to its resolved column width.
 
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 

@@ -3,7 +3,6 @@
 use crate::border::Borders;
 use crate::model::cell::Cell;
 use crate::style::{Align, Color, Style};
-use crate::text::truncate_with_ellipsis;
 
 /// Closure-DSL builder for a single [`Cell`], passed to
 /// [`crate::builder::row_builder::RowBuilder::cell`].
@@ -81,18 +80,14 @@ impl CellBuilder<'_> {
         self
     }
 
-    /// Truncates this cell's content to `max_width` right now, appending
-    /// `"..."` if it had to cut anything off. This directly replaces the
-    /// cell's content rather than affecting layout later, so the column
-    /// this cell ends up in is naturally sized around the truncated text.
+    /// Truncates this cell's content to `max_width`, appending the table's
+    /// [`crate::model::table::Table::ellipsis`] if it had to cut anything
+    /// off. Applied before natural column widths are computed, so the
+    /// column this cell ends up in is naturally sized around the truncated
+    /// text — unlike a column's `max_width`, which only clamps afterward.
+    /// Set `t.ellipsis(...)` for a custom ellipsis; it applies here too.
     pub fn truncate(&mut self, max_width: usize) -> &mut Self {
-        self.truncate_with(max_width, "...")
-    }
-
-    /// Like [`Self::truncate`], but with a custom `ellipsis` instead of the
-    /// default `"..."` (e.g. `"…"`).
-    pub fn truncate_with(&mut self, max_width: usize, ellipsis: &str) -> &mut Self {
-        self.cell.content = truncate_with_ellipsis(&self.cell.content, max_width, ellipsis);
+        self.cell.truncate_to = Some(max_width);
         self
     }
 }

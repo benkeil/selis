@@ -266,7 +266,7 @@ fn max_width_truncates_overflowing_content_with_an_ellipsis() {
     });
 
     let expected = "\
-a very ... x
+a very lo… x
 short      y";
     assert_eq!(table.render(), expected);
 }
@@ -302,14 +302,227 @@ fn table_wide_max_width_applies_across_header_body_and_footer() {
     });
 
     let expected = "\
-A ve...
-A ve...
-A ve...";
+A very…
+A very…
+A very…";
     assert_eq!(table.render(), expected);
 }
 
 #[test]
-fn cell_truncate_replaces_just_that_cells_content_immediately() {
+fn min_width_pads_a_column_narrower_than_its_content() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.body(|b| {
+            b.column(0).min_width(10);
+            b.row_cells(["a", "x"]);
+        });
+    });
+
+    assert_eq!(table.render(), "a          x");
+}
+
+#[test]
+fn min_width_has_no_effect_when_content_is_already_wider() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.body(|b| {
+            b.column(0).min_width(3);
+            b.row_cells(["a very long value", "x"]);
+        });
+    });
+
+    assert_eq!(table.render(), "a very long value x");
+}
+
+#[test]
+fn fixed_width_pads_or_truncates_to_exactly_that_width() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.body(|b| {
+            b.column(0).width(6);
+            b.row_cells(["a", "x"]);
+            b.row_cells(["a very long value", "y"]);
+        });
+    });
+
+    let expected = "\
+a      x
+a ver… y";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+#[should_panic(expected = "column 0 has conflicting `max_width` overrides across sections")]
+fn conflicting_section_scoped_width_overrides_panic() {
+    let table = Table::build(|t| {
+        t.header(|h| {
+            h.column(0).max_width(40);
+            h.row_cells(["Name"]);
+        });
+        t.body(|b| {
+            b.column(0).max_width(50);
+            b.row_cells(["a"]);
+        });
+    });
+
+    table.render();
+}
+
+#[test]
+fn same_value_from_two_sections_is_not_a_conflict() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.header(|h| {
+            h.column(0).max_width(10);
+            h.row_cells(["a very long header"]);
+        });
+        t.body(|b| {
+            b.column(0).max_width(10);
+            b.row_cells(["a very long body cell"]);
+        });
+    });
+
+    let expected = "\
+a very lo…
+a very lo…";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn colspanning_cell_gets_the_combined_width_of_every_column_it_spans() {
+    // Column 0 is capped at max_width(1), but the colspan(2) cell still
+    // spans both columns: its available room is column 0's (clamped) width
+    // *plus* column 1's, not just column 0's 1 character alone — otherwise
+    // it would truncate down to a single character instead of six.
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.body(|b| {
+            b.column(0).max_width(1);
+            b.row(|r| {
+                r.cell("abcdefgh").colspan(2);
+            });
+            b.row_cells(["x", "y"]);
+        });
+    });
+
+    let expected = "\
+abcde…
+x y   ";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn cap_to_width_shrinks_the_widest_column_first_until_it_fits() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.cap_to_width(9);
+        t.body(|b| {
+            b.row_cells(["a very long description", "id"]);
+        });
+    });
+
+    let expected = "\
+a ver… id";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn cap_to_width_stops_shrinking_at_min_width() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.cap_to_width(1); // impossible to reach
+        t.body(|b| {
+            b.column(0).min_width(4);
+            b.row_cells(["a very long description", "id"]);
+        });
+    });
+
+    // Column 0 stops at its min_width (4); column 1 stops at the default
+    // floor of 1. Over budget stays over budget rather than erroring.
+    let expected = "\
+a v… i";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn flex_column_grows_to_fill_whatever_width_cap_to_width_leaves_over() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.cap_to_width(10);
+        t.body(|b| {
+            b.column(1).flex();
+            b.row_cells(["id", "x"]);
+        });
+    });
+
+    let expected = "\
+id x      ";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn flex_column_shrinks_and_truncates_when_there_is_no_slack() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.cap_to_width(6);
+        t.body(|b| {
+            b.column(1).flex();
+            b.row_cells(["id", "a very long description"]);
+        });
+    });
+
+    let expected = "\
+id a …";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn flex_column_growth_is_still_capped_by_its_own_max_width() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.cap_to_width(20);
+        t.body(|b| {
+            b.column(1).flex().max_width(5);
+            b.row_cells(["id", "x"]);
+        });
+    });
+
+    let expected = "\
+id x    ";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+#[should_panic(expected = "only one column may be marked `flex`")]
+fn more_than_one_flex_column_panics() {
+    let table = Table::build(|t| {
+        t.cap_to_width(20);
+        t.body(|b| {
+            b.column(0).flex();
+            b.column(1).flex();
+            b.row_cells(["a", "b"]);
+        });
+    });
+    table.render();
+}
+
+#[test]
+fn flex_without_cap_to_width_is_a_no_op() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.body(|b| {
+            b.column(1).flex();
+            b.row_cells(["id", "x"]);
+        });
+    });
+
+    let expected = "\
+id x";
+    assert_eq!(table.render(), expected);
+}
+
+#[test]
+fn cell_truncate_applies_before_natural_column_width_is_computed() {
     let table = Table::build(|t| {
         t.table_borders(Borders::NONE);
         t.body(|b| {
@@ -321,29 +534,44 @@ fn cell_truncate_replaces_just_that_cells_content_immediately() {
         });
     });
 
-    // `.truncate(10)` mutates the first cell's content immediately, before
-    // layout ever runs — so the column is naturally sized around the two
-    // *actual* (already-truncated / untouched) contents: "a very ..." (10)
-    // and "short row here" (14). The shorter, truncated cell is then padded
-    // out to that natural column width like any other cell.
+    // `.truncate(10)` is resolved before natural column widths are
+    // computed — so the column is sized around the two *already-truncated*
+    // contents: "a very lo…" (10) and "short row here" (14). The shorter,
+    // truncated cell is then padded out to that natural column width like
+    // any other cell.
     let expected = "\
-a very ...     x
+a very lo…     x
 short row here y";
     assert_eq!(table.render(), expected);
 }
 
 #[test]
-fn cell_truncate_with_uses_a_custom_ellipsis() {
+fn table_wide_ellipsis_applies_to_cell_truncate_too() {
     let table = Table::build(|t| {
         t.table_borders(Borders::NONE);
+        t.ellipsis("...");
         t.body(|b| {
             b.row(|r| {
-                r.cell("a very long piece of text").truncate_with(8, "…");
+                r.cell("a very long piece of text").truncate(10);
             });
         });
     });
 
-    assert_eq!(table.render(), "a very …");
+    assert_eq!(table.render(), "a very ...");
+}
+
+#[test]
+fn table_wide_ellipsis_applies_to_column_width_truncation_too() {
+    let table = Table::build(|t| {
+        t.table_borders(Borders::NONE);
+        t.ellipsis("~");
+        t.body(|b| {
+            b.column(0).max_width(5);
+            b.row_cells(["a very long value"]);
+        });
+    });
+
+    assert_eq!(table.render(), "a ve~");
 }
 
 #[test]
